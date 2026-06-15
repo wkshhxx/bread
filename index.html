@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BakeFit Lab - 제과제빵사를 위한 브레드 핏 시뮬레이터</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-decor">
+        <div class="glow-circle gc1"></div>
+        <div class="glow-circle gc2"></div>
+        <div class="glow-circle gc3"></div>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-wheat-awn logo-icon"></i>
+                <h1>BakeFit <span>Lab</span></h1>
+            </div>
+            <p class="subtitle">미래의 제과제빵사를 위한 건강 레시피 R&D 및 섭취 시뮬레이터</p>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <!-- 1행: 시뮬레이터 및 경고 시스템 -->
+        <section class="grid-section upper-grid">
+            <!-- 빵 진열대 및 접시 -->
+            <div class="card glass-panel" id="simulator-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-store icon-color"></i> 빵 베이커리 쇼케이스</h2>
+                    <span class="badge">원하는 빵을 클릭해 접시에 담으세요</span>
+                </div>
+                
+                <div class="bread-showcase">
+                    <!-- 빵 종류별 아이템 -->
+                    <div class="bread-item" data-id="croissant" onclick="selectBread('croissant')">
+                        <div class="bread-emoji">🥐</div>
+                        <div class="bread-info">
+                            <span class="bread-name">크루아상</span>
+                            <span class="bread-cal">320 kcal</span>
+                        </div>
+                    </div>
+                    <div class="bread-item" data-id="soboro" onclick="selectBread('soboro')">
+                        <div class="bread-emoji">🍞</div>
+                        <div class="bread-info">
+                            <span class="bread-name">소보로빵</span>
+                            <span class="bread-cal">400 kcal</span>
+                        </div>
+                    </div>
+                    <div class="bread-item" data-id="redbean" onclick="selectBread('redbean')">
+                        <div class="bread-emoji">🥯</div>
+                        <div class="bread-info">
+                            <span class="bread-name">단팥빵</span>
+                            <span class="bread-cal">340 kcal</span>
+                        </div>
+                    </div>
+                    <div class="bread-item" data-id="baguette" onclick="selectBread('baguette')">
+                        <div class="bread-emoji">🥖</div>
+                        <div class="bread-info">
+                            <span class="bread-name">바게트(3조각)</span>
+                            <span class="bread-cal">150 kcal</span>
+                        </div>
+                    </div>
+                    <div class="bread-item" data-id="cake" onclick="selectBread('cake')">
+                        <div class="bread-emoji">🍰</div>
+                        <div class="bread-info">
+                            <span class="bread-name">초코케이크</span>
+                            <span class="bread-cal">450 kcal</span>
+                        </div>
+                    </div>
+                    <div class="bread-item" data-id="sourdough" onclick="selectBread('sourdough')">
+                        <div class="bread-emoji">🌾</div>
+                        <div class="bread-info">
+                            <span class="bread-name">통밀 사워도우</span>
+                            <span class="bread-cal">120 kcal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plate-area">
+                    <div class="plate-title">🍽️ 나의 시뮬레이션 접시</div>
+                    <div class="plate-wrapper">
+                        <div id="plate" class="plate-circle">
+                            <div class="plate-inner">
+                                <span id="plate-placeholder">시선 집중! 빵을 담아주세요</span>
+                                <div id="plate-bread" class="plate-bread-display"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plate-controls">
+                        <button id="btn-eat" class="btn primary-btn" onclick="eatBread()" disabled>
+                            <i class="fa-solid fa-utensils"></i> 섭취하기
+                        </button>
+                        <button id="btn-clear" class="btn secondary-btn" onclick="clearPlate()">
+                            <i class="fa-solid fa-rotate-left"></i> 접시 비우기
+                        </button>
+                        <button id="btn-reset" class="btn secondary-btn" onclick="resetHistory()" style="border-color: rgba(255, 0, 85, 0.25); color: #ff0055;">
+                            <i class="fa-solid fa-trash-can"></i> 기록 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 모니터링 게이지 및 사이렌 경고등 -->
+            <div class="card glass-panel status-card" id="status-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-gauge-high icon-color"></i> 실시간 섭취 모니터링</h2>
+                    <div class="limit-setting">
+                        <label for="input-limit">제한 칼로리:</label>
+                        <input type="number" id="input-limit" value="400" min="100" max="2000" onchange="updateLimit()">
+                        <span>kcal</span>
+                    </div>
+                </div>
+
+                <div class="siren-container">
+                    <!-- 물리적인 경고 경광등 스타일 -->
+                    <div id="siren-light" class="siren-light status-safe">
+                        <div class="siren-top"></div>
+                        <div class="siren-bulb"></div>
+                        <div class="siren-base">
+                            <div class="siren-indicator-text">SAFE</div>
+                        </div>
+                    </div>
+                    <div class="siren-glow-effect" id="siren-glow"></div>
+                </div>
+
+                <div class="gauge-section">
+                    <div class="gauge-value">
+                        <span id="current-calories" class="count-up">0</span>
+                        <span class="slash">/</span>
+                        <span id="limit-calories">400</span>
+                        <span class="unit">kcal</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="calories-progress" class="progress-bar-fill progress-safe" style="width: 0%;"></div>
+                    </div>
+                    <div id="status-message" class="status-msg-safe">
+                        <i class="fa-solid fa-circle-check"></i> 권장량 이내입니다. 안전한 상태입니다!
+                    </div>
+                </div>
+
+                <!-- 생리적 상태 카드 (경고 시 알림 상세) -->
+                <div id="danger-warning-card" class="warning-detail-card hidden">
+                    <div class="warning-title">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 칼로리 및 탄수화물 과잉 경고!
+                    </div>
+                    <div class="warning-desc">
+                        하루 권장 빵 섭취 칼로리를 초과했습니다. 정제 탄수화물 과다 섭취 시 우리 몸에 다음 증상이 일어납니다:
+                    </div>
+                    <ul class="warning-bullets">
+                        <li><span class="bullet-tag sugar">혈당 스파이크</span> 췌장에서 인슐린 호르몬이 급격히 분비됩니다.</li>
+                        <li><span class="bullet-tag insulin">인슐린 저항성</span> 과잉 공급된 포도당이 지방세포에 흡수되어 체중이 급증합니다.</li>
+                        <li><span class="bullet-tag crash">슈가 크래시</span> 혈당이 급격히 내려가며 피로감과 가짜 배고픔이 느껴집니다.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2행: 생리 반응 그래프 분석 -->
+        <section class="grid-section middle-grid">
+            <!-- 혈당 스파이크 변화 시뮬레이션 -->
+            <div class="card glass-panel graph-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-line icon-color"></i> 24시간 실시간 혈당 변화 시뮬레이션</h2>
+                    <span class="badge text-danger">식후 혈당 상승 추이</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bloodSugarChart"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <p><i class="fa-solid fa-circle-info"></i> 혈당지수(GI)가 높은 정제 밀빵을 많이 먹을수록 혈당이 높이 솟구친 후 급격히 떨어지는 <strong>혈당 스파이크</strong>가 심해집니다.</p>
+                </div>
+            </div>
+
+            <!-- 체중 및 영양 균형 -->
+            <div class="card glass-panel graph-card-side">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-pie icon-color"></i> 섭취 영양소 및 30일 체중 예측</h2>
+                </div>
+                <div class="sub-charts-tabs">
+                    <button class="tab-btn active" id="btn-tab-nutrient" onclick="switchSubChart('nutrient')">영양 분석</button>
+                    <button class="tab-btn" id="btn-tab-weight" onclick="switchSubChart('weight')">30일 체중 예측</button>
+                </div>
+                <div class="chart-container sub-chart-container">
+                    <div id="nutrient-chart-wrap" class="sub-chart-view">
+                        <canvas id="nutrientChart"></canvas>
+                    </div>
+                    <div id="weight-chart-wrap" class="sub-chart-view hidden">
+                        <canvas id="weightChart"></canvas>
+                    </div>
+                </div>
+                <div class="sub-chart-info" id="sub-chart-desc">
+                    탄수화물과 설탕의 섭취 비율이 높을수록 몸의 인슐린 분비가 불균형해집니다.
+                </div>
+            </div>
+        </section>
+
+        <!-- 3행: 제과제빵 진로 연계 - R&D 건강 레시피 실험실 -->
+        <section class="grid-section lower-grid">
+            <div class="card glass-panel" id="career-lab-card">
+                <div class="card-header-career">
+                    <div class="career-title-wrap">
+                        <i class="fa-solid fa-flask-vial career-icon"></i>
+                        <div>
+                            <h2>Healthy Baking R&D Lab (건강한 제과제빵 연구소)</h2>
+                            <p class="career-desc">제과제빵사의 해답: 나만의 건강 대체 레시피를 개발해 칼로리와 혈당 수치를 개선해 보세요!</p>
+                        </div>
+                    </div>
+                    <span class="badge career-badge">제과제빵 진로 핵심 역량</span>
+                </div>
+
+                <div class="career-content">
+                    <div class="recipe-selector">
+                        <h3>1. 최적화할 레시피 선택</h3>
+                        <div class="recipe-btns">
+                            <button id="recipe-soboro" class="recipe-tab-btn active" onclick="selectCareerRecipe('soboro')">소보로빵</button>
+                            <button id="recipe-cake" class="recipe-tab-btn" onclick="selectCareerRecipe('cake')">초코케이크</button>
+                        </div>
+                    </div>
+
+                    <div class="recipe-control-panel">
+                        <div class="ingredients-list">
+                            <h3>2. 원재료 대체 (R&D 토글)</h3>
+                            
+                            <!-- 대체 토글 1: 가루류 -->
+                            <div class="ingredient-row">
+                                <div class="ing-info">
+                                    <span class="ing-name">가루류</span>
+                                    <span class="ing-desc" id="flour-desc">백밀가루 (정제 탄수화물, 높은 GI)</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-flour" onchange="optimizeRecipe()">
+                                    <span class="slider round"></span>
+                                </label>
+                                <div class="ing-replacement">통밀가루 대체</div>
+                            </div>
+
+                            <!-- 대체 토글 2: 당류 -->
+                            <div class="ingredient-row">
+                                <div class="ing-info">
+                                    <span class="ing-name">감미료</span>
+                                    <span class="ing-desc" id="sugar-desc">정제 백설탕 (순수 당류, 당뇨 유발)</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-sugar" onchange="optimizeRecipe()">
+                                    <span class="slider round"></span>
+                                </label>
+                                <div class="ing-replacement">알룰로스 대체</div>
+                            </div>
+
+                            <!-- 대체 토글 3: 유지류 -->
+                            <div class="ingredient-row">
+                                <div class="ing-info">
+                                    <span class="ing-name">유지류</span>
+                                    <span class="ing-desc" id="butter-desc">가공 버터 (포화지방, 콜레스테롤)</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-butter" onchange="optimizeRecipe()">
+                                    <span class="slider round"></span>
+                                </label>
+                                <div class="ing-replacement">아보카도유 대체</div>
+                            </div>
+                        </div>
+
+                        <!-- R&D 연구 결과 비교 -->
+                        <div class="rd-results glass-panel">
+                            <h3>3. R&D 성과 보고서</h3>
+                            <div class="compare-stats">
+                                <div class="stat-box">
+                                    <div class="stat-label">칼로리</div>
+                                    <div class="stat-value-compare">
+                                        <span class="old-val" id="rd-old-cal">400</span> → 
+                                        <span class="new-val" id="rd-new-cal">400</span> kcal
+                                    </div>
+                                    <div class="stat-diff positive" id="rd-cal-diff">0% 감소</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-label">당류 함량</div>
+                                    <div class="stat-value-compare">
+                                        <span class="old-val" id="rd-old-sugar">25</span> → 
+                                        <span class="new-val" id="rd-new-sugar">25</span> g
+                                    </div>
+                                    <div class="stat-diff positive" id="rd-sugar-diff">0% 감소</div>
+                                </div>
+                            </div>
+                            <div class="rd-feedback-box" id="rd-feedback">
+                                <i class="fa-solid fa-circle-question"></i> 원재료를 대체하여 건강한 건강 빵을 개발해 보세요!
+                            </div>
+                            <button class="btn career-btn" id="btn-bake-custom" onclick="bakeCustomBread()">
+                                <i class="fa-solid fa-blender"></i> 이 커스텀 빵을 접시에 담기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <p>© 2026 BakeFit Lab. 미래의 제과제빵사를 위한 영양 및 혈당 반응 연구 시뮬레이터.</p>
+            <p class="author">제과제빵 진로 탐색 및 헬스케어 융합 프로젝트</p>
+        </div>
+    </footer>
+
+    <!-- Web Audio API를 활용한 효과음 재생을 위해 켜두는 모달 (Audio Context 활성화 필요) -->
+    <div id="audio-init-modal" class="audio-modal">
+        <div class="audio-modal-content glass-panel">
+            <h2>🥖 BakeFit Lab에 오신 것을 환영합니다!</h2>
+            <p>시뮬레이터의 바삭바삭한 효과음과 실시간 경보 사운드를 들으시려면 아래의 "시작하기" 버튼을 눌러 소리를 활성화해 주세요.</p>
+            <button class="btn start-btn" onclick="initAudio()">시작하기</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
