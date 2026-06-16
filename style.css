@@ -291,6 +291,20 @@ header {
     color: var(--color-accent);
 }
 
+.plate-section-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 20px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+@media (max-width: 992px) {
+    .plate-section-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Plate Area */
 .plate-area {
     background: rgba(255, 255, 255, 0.01);
@@ -301,6 +315,220 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
+}
+
+/* --- Bread Detail Panel Styles --- */
+.bread-detail-panel {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    min-height: 250px;
+    transition: var(--transition-normal);
+    width: 100%;
+}
+
+.bread-detail-panel:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.detail-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--color-text-sub);
+    text-align: center;
+}
+
+.detail-placeholder i {
+    font-size: 44px;
+    color: rgba(255, 255, 255, 0.1);
+    animation: rotate-cookie 10s linear infinite;
+}
+
+@keyframes rotate-cookie {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.detail-placeholder p {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.detail-content {
+    animation: fadeInDetail 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.detail-content.hidden, .detail-placeholder.hidden {
+    display: none;
+}
+
+@keyframes fadeInDetail {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+.detail-emoji {
+    font-size: 44px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.detail-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--color-text-main);
+}
+
+.detail-type-badge {
+    align-self: flex-start;
+    background: rgba(0, 210, 255, 0.1);
+    color: var(--color-primary);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detail-section h4 {
+    font-size: 12px;
+    color: var(--color-text-sub);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+/* Ingredients tags */
+.ingredients-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ing-tag {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-main);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    transition: var(--transition-fast);
+}
+
+.ing-tag.ing-healthy {
+    background: rgba(0, 255, 170, 0.08);
+    border-color: rgba(0, 255, 170, 0.25);
+    color: #00ffc4;
+    box-shadow: 0 0 8px rgba(0, 255, 170, 0.05);
+}
+
+.ing-tag.ing-bad {
+    background: rgba(255, 0, 85, 0.08);
+    border-color: rgba(255, 0, 85, 0.25);
+    color: #ff3377;
+    box-shadow: 0 0 8px rgba(255, 0, 85, 0.05);
+}
+
+/* Nutrition grid */
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.nutr-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.nutr-label {
+    font-size: 10px;
+    color: var(--color-text-sub);
+}
+
+.nutr-val {
+    font-family: var(--font-digital);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.text-accent {
+    color: var(--color-accent);
+}
+
+/* GI Badges */
+.gi-badge-wrap {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.gi-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.gi-badge.gi-safe {
+    background: rgba(0, 255, 170, 0.1);
+    color: var(--color-safe);
+    border: 1px solid rgba(0, 255, 170, 0.2);
+}
+
+.gi-badge.gi-warn {
+    background: rgba(255, 170, 0, 0.1);
+    color: var(--color-warn);
+    border: 1px solid rgba(255, 170, 0, 0.2);
+}
+
+.gi-badge.gi-danger {
+    background: rgba(255, 0, 85, 0.15);
+    color: var(--color-danger);
+    border: 1px solid rgba(255, 0, 85, 0.2);
 }
 
 .plate-title {
@@ -1242,4 +1470,218 @@ footer {
 /* Count up effect */
 .count-up {
     transition: all 0.3s ease;
+}
+
+/* --- Status Card - Age & Calorie Guide CSS --- */
+.card-header-status {
+    width: 100%;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.status-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.status-title-row h2 {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.keypad-toggle-btn {
+    background: rgba(0, 210, 255, 0.08);
+    border: 1px solid rgba(0, 210, 255, 0.25);
+    color: var(--color-primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-fast);
+}
+
+.keypad-toggle-btn:hover {
+    background: rgba(0, 210, 255, 0.18);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+}
+
+.status-setting-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.age-setting-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 15px;
+}
+
+.setting-title {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    font-weight: 600;
+}
+
+.age-input-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.digital-display {
+    font-family: var(--font-digital);
+    font-weight: 700;
+    color: var(--color-primary);
+    text-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
+}
+
+#display-age {
+    font-size: 24px;
+}
+
+.unit-text {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    font-weight: 600;
+}
+
+/* Virtual Keypad CSS */
+.age-keypad {
+    background: rgba(13, 17, 23, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    backdrop-filter: blur(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideDown 0.3s ease-out;
+}
+
+.age-keypad.hidden {
+    display: none;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.key-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--color-text-main);
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.key-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.key-btn:active {
+    transform: scale(0.95);
+}
+
+.key-btn.action-key {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-accent);
+}
+
+.key-btn.action-key:hover {
+    background: rgba(255, 140, 0, 0.1);
+    border-color: var(--color-accent);
+}
+
+/* Calorie Info Block CSS */
+.cal-info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.total-cal-guide {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px dashed rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-size: 13px;
+    color: var(--color-text-sub);
+}
+
+#recommended-total-cal {
+    font-size: 20px;
+    color: var(--color-career);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.unit-guide {
+    font-size: 11px;
+    color: var(--color-text-sub);
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+.limit-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--color-text-sub);
+}
+
+.limit-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.limit-input-wrap input {
+    width: 65px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 4px 6px;
+    color: #fff;
+    text-align: center;
+    font-weight: 700;
+    outline: none;
+    font-family: var(--font-digital);
+    font-size: 14px;
 }

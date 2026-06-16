@@ -1,25 +1,27 @@
 // --- Global App State ---
 const BREAD_TEMPLATES = {
-    croissant: { name: '크루아상', emoji: '🥐', calories: 320, carb: 35, protein: 5, fat: 18, sugar: 8, gi: 75 },
-    soboro: { name: '소보로빵', emoji: '🍞', calories: 400, carb: 55, protein: 7, fat: 12, sugar: 18, gi: 80 },
-    redbean: { name: '단팥빵', emoji: '🥯', calories: 340, carb: 60, protein: 6, fat: 6, sugar: 24, gi: 82 },
-    baguette: { name: '바게트(3조각)', emoji: '🥖', calories: 150, carb: 32, protein: 5, fat: 1, sugar: 1, gi: 70 },
-    cake: { name: '초코케이크', emoji: '🍰', calories: 450, carb: 50, protein: 5, fat: 25, sugar: 30, gi: 85 },
-    sourdough: { name: '통밀 사워도우', emoji: '🌾', calories: 120, carb: 24, protein: 4, fat: 1, sugar: 0.5, gi: 45 }
+    croissant: { name: '크루아상', emoji: '🥐', calories: 320, carb: 35, protein: 5, fat: 18, sugar: 8, gi: 75, type: '일반 빵', ingredients: ['유기농 강력분', '천연 버터', '정제 백설탕', '효모', '정제소금'] },
+    soboro: { name: '소보로빵', emoji: '🍞', calories: 400, carb: 55, protein: 7, fat: 12, sugar: 18, gi: 80, type: '일반 빵', ingredients: ['강력분', '가공 버터', '정제 백설탕', '땅콩버터', '효모', '정제소금'] },
+    redbean: { name: '단팥빵', emoji: '🥯', calories: 340, carb: 60, protein: 6, fat: 6, sugar: 24, gi: 82, type: '일반 빵', ingredients: ['강력분', '팥앙금(백설탕 가득)', '정제 백설탕', '효모', '검은깨'] },
+    baguette: { name: '바게트(3조각)', emoji: '🥖', calories: 150, carb: 32, protein: 5, fat: 1, sugar: 1, gi: 70, type: '클래식 빵', ingredients: ['프랑스산 밀가루', '효모', '천일염', '물'] },
+    cake: { name: '초코케이크', emoji: '🍰', calories: 450, carb: 50, protein: 5, fat: 25, sugar: 30, gi: 85, type: '디저트', ingredients: ['박력분', '백설탕', '가공 버터', '초코칩', '코코아매스', '식용색소'] },
+    sourdough: { name: '통밀 사워도우', emoji: '🌾', calories: 120, carb: 24, protein: 4, fat: 1, sugar: 0.5, gi: 45, type: '웰빙 빵', ingredients: ['유기농 통밀가루', '천연 발효종', '정제염', '물'] },
+    saltbread: { name: '일반 소금빵', emoji: '🥐', calories: 270, carb: 38, protein: 4, fat: 12, sugar: 4, gi: 75, type: '일반 빵', ingredients: ['강력분(밀)', '가공 버터', '마가린(트랜스지방)', '정제소금', '백설탕'] },
+    rice_saltbread: { name: '천연버터 쌀소금빵', emoji: '🌾', calories: 220, carb: 34, protein: 5, fat: 7, sugar: 1, gi: 50, type: '웰빙 빵', ingredients: ['국산 쌀가루', '뉴질랜드 천연 앵커버터', '프랑스 게랑드 토판 천일염', '효모', '물'] }
 };
 
 let customBreadCounter = 1;
 let selectedBreadId = null;
 let plateBread = null;
 
-// Eaten list
 let eatenBreads = [];
 let totalCalories = 0;
 let totalCarb = 0;
 let totalProtein = 0;
 let totalFat = 0;
 let totalSugar = 0;
-let dailyLimit = 400;
+let dailyLimit = 420; // Default limit for 12 years (20% of 2100kcal)
+let currentAge = 12; // Default age
 
 // Sub-charts navigation
 let activeSubChart = 'nutrient'; // 'nutrient' or 'weight'
@@ -197,7 +199,71 @@ function selectBread(breadId) {
         
         // Enable eat button
         document.getElementById('btn-eat').disabled = false;
+
+        // Update detail panel
+        updateDetailPanel(plateBread);
     }
+}
+
+// Update detail panel UI with bread details
+function updateDetailPanel(bread) {
+    const placeholder = document.getElementById('detail-placeholder');
+    const content = document.getElementById('detail-content');
+    
+    if (!bread) {
+        placeholder.classList.remove('hidden');
+        content.classList.add('hidden');
+        return;
+    }
+    
+    placeholder.classList.add('hidden');
+    content.classList.remove('hidden');
+    
+    document.getElementById('detail-emoji').innerText = bread.emoji;
+    document.getElementById('detail-name').innerText = bread.name;
+    document.getElementById('detail-type-badge').innerText = bread.type || '일반 베이커리';
+    
+    document.getElementById('detail-cal').innerText = `${bread.calories} kcal`;
+    document.getElementById('detail-carb').innerText = `${bread.carb} g`;
+    document.getElementById('detail-protein').innerText = `${bread.protein} g`;
+    document.getElementById('detail-fat').innerText = `${bread.fat} g`;
+    document.getElementById('detail-sugar').innerText = `${bread.sugar} g`;
+    document.getElementById('detail-gi').innerText = bread.gi;
+    
+    // GI Badge logic
+    const giWrap = document.getElementById('detail-gi-badge-wrap');
+    let giClass = 'gi-safe';
+    let giText = '저혈당지수 (안심)';
+    
+    if (bread.gi > 70) {
+        giClass = 'gi-danger';
+        giText = '고혈당지수 (피해야 함)';
+    } else if (bread.gi > 55) {
+        giClass = 'gi-warn';
+        giText = '중혈당지수 (적정 섭취)';
+    }
+    giWrap.innerHTML = `<span class="gi-badge ${giClass}"><i class="fa-solid fa-droplet"></i> ${giText}</span>`;
+    
+    // Render ingredients tags
+    const ingDiv = document.getElementById('detail-ingredients');
+    ingDiv.innerHTML = '';
+    
+    const ingredients = bread.ingredients || [];
+    ingredients.forEach(ing => {
+        const span = document.createElement('span');
+        span.className = 'ing-tag';
+        
+        // Highlight healthy / unhealthy ingredients
+        const ingLower = ing.toLowerCase();
+        if (ingLower.includes('통밀') || ingLower.includes('알룰로스') || ingLower.includes('아보카도') || ingLower.includes('쌀가루') || ingLower.includes('천연') || ingLower.includes('토판') || ingLower.includes('천일염') || ingLower.includes('발효종') || ingLower.includes('효모')) {
+            span.classList.add('ing-healthy');
+        } else if (ingLower.includes('설탕') || ingLower.includes('마가린') || ingLower.includes('액상과당') || ingLower.includes('가공') || ingLower.includes('트랜스') || ingLower.includes('색소')) {
+            span.classList.add('ing-bad');
+        }
+        
+        span.innerText = ing;
+        ingDiv.appendChild(span);
+    });
 }
 
 // Eat bread on plate with animation
@@ -246,6 +312,9 @@ function eatBread() {
         plateBreadDisp.className = 'plate-bread-display';
         document.getElementById('plate-placeholder').style.display = 'block';
         
+        // Reset details panel
+        updateDetailPanel(null);
+        
         // Clear showcase selection visual
         const prevSelected = document.querySelector('.bread-item.selected');
         if (prevSelected) {
@@ -263,6 +332,9 @@ function clearPlate() {
     plateBreadDisp.className = 'plate-bread-display';
     document.getElementById('plate-placeholder').style.display = 'block';
     document.getElementById('btn-eat').disabled = true;
+    
+    // Reset details panel
+    updateDetailPanel(null);
     
     const prevSelected = document.querySelector('.bread-item.selected');
     if (prevSelected) {
@@ -291,6 +363,9 @@ function resetHistory() {
     plateBreadDisp.className = 'plate-bread-display';
     document.getElementById('plate-placeholder').style.display = 'block';
     document.getElementById('btn-eat').disabled = true;
+    
+    // Reset details panel
+    updateDetailPanel(null);
     
     // Unselect showcase item
     const prevSelected = document.querySelector('.bread-item.selected');
@@ -792,6 +867,27 @@ function bakeCustomBread() {
     const customId = `custom_${customBreadCounter++}`;
     const customName = `${namePrefix}${base.name}`;
     
+    // Dynamic ingredients list based on optimizations
+    let customIngredients = [];
+    if (activeCareerRecipe === 'soboro') {
+        customIngredients = [
+            rdOptimizations.flour ? '유기농 통밀가루' : '정제 밀가루',
+            rdOptimizations.butter ? '불포화 아보카도유' : '가공 버터',
+            rdOptimizations.sugar ? '천연 대체당(알룰로스)' : '정제 백설탕',
+            '땅콩버터',
+            '효모',
+            '정제소금'
+        ];
+    } else { // cake
+        customIngredients = [
+            rdOptimizations.flour ? '유기농 통밀가루' : '일반 박력분',
+            rdOptimizations.butter ? '아보카도유 대체제' : '동물성 버터 & 크림',
+            rdOptimizations.sugar ? '천연 대체당(알룰로스)' : '초콜릿 & 액상과당',
+            '코코아매스',
+            '효모'
+        ];
+    }
+    
     const customBreadObj = {
         id: customId,
         name: customName,
@@ -801,7 +897,9 @@ function bakeCustomBread() {
         protein: protein,
         fat: fat,
         sugar: sugar,
-        gi: gi
+        gi: gi,
+        type: toggleCount === 3 ? 'R&D 최적화 빵' : 'R&D 시험용 빵',
+        ingredients: customIngredients
     };
     
     // Store in global custom list
@@ -850,7 +948,92 @@ function bakeCustomBread() {
 // --- App Initialization ---
 window.addEventListener('DOMContentLoaded', () => {
     initCharts();
-    // Default config values
+    updateAgeAndCaloriesUI();
+});
+
+// --- Age & Calorie Guide Engine ---
+
+// Toggle Virtual Keypad display
+function toggleKeypad() {
+    const keypad = document.getElementById('age-keypad');
+    const btn = document.getElementById('btn-toggle-keypad');
+    
+    if (keypad.classList.contains('hidden')) {
+        keypad.classList.remove('hidden');
+        btn.innerHTML = '<i class="fa-solid fa-keyboard"></i> 닫기';
+    } else {
+        keypad.classList.add('hidden');
+        btn.innerHTML = '<i class="fa-solid fa-keyboard"></i> 나이 설정';
+    }
+}
+
+// Press virtual age key
+function pressAgeKey(num) {
+    let ageStr = currentAge.toString();
+    if (ageStr === '0') {
+        ageStr = num.toString();
+    } else {
+        // Limit to max 3 digits
+        if (ageStr.length < 3) {
+            ageStr += num.toString();
+        }
+    }
+    
+    let ageVal = parseInt(ageStr);
+    if (ageVal > 120) {
+        ageVal = 120; // Maximum realistic human age limit
+    }
+    
+    currentAge = ageVal;
+    updateAgeAndCaloriesUI();
+}
+
+// Clear virtual age input
+function clearAge() {
+    currentAge = 0;
+    updateAgeAndCaloriesUI();
+}
+
+// Backspace virtual age input
+function backspaceAge() {
+    let ageStr = currentAge.toString();
+    if (ageStr.length > 1) {
+        ageStr = ageStr.slice(0, -1);
+        currentAge = parseInt(ageStr);
+    } else {
+        currentAge = 0;
+    }
+    updateAgeAndCaloriesUI();
+}
+
+// Calculate recommended daily calories based on Age (KOR Nutrition standards)
+function getRecommendedCalories(age) {
+    if (age <= 0) return 0;
+    if (age <= 2) return 900;
+    if (age <= 5) return 1400;
+    if (age <= 8) return 1700;
+    if (age <= 11) return 1900;
+    if (age <= 14) return 2100;
+    if (age <= 18) return 2400;
+    if (age <= 49) return 2200;
+    if (age <= 64) return 2000;
+    return 1700; // 65세 이상
+}
+
+// Update Age and Calorie Guide UI
+function updateAgeAndCaloriesUI() {
+    document.getElementById('display-age').innerText = currentAge;
+    
+    const recommendedTotal = getRecommendedCalories(currentAge);
+    document.getElementById('recommended-total-cal').innerText = recommendedTotal;
+    
+    // Set bread limit to ~20% of total daily energy requirement, minimum 100kcal
+    const autoBreadLimit = Math.max(Math.round(recommendedTotal * 0.2), 100);
+    
+    dailyLimit = autoBreadLimit;
     document.getElementById('input-limit').value = dailyLimit;
     document.getElementById('limit-calories').innerText = dailyLimit;
-});
+    
+    updateMonitoringUI();
+    updateCharts();
+}
